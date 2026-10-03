@@ -1,0 +1,54 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "sqlite"
+}
+
+model Activity {
+  id         Int      @id @default(autoincrement())
+  name       String
+  type       String
+  difficulty String   @default("medium")
+  showHints  Boolean  @default(true)
+  maxGuesses Int?
+  gridSize   Int?
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  words Word[]
+}
+
+model Word {
+  id          Int      @id @default(autoincrement())
+  englishWord String
+  hint        String?
+  activityId  Int
+
+  activity Activity  @relation(fields: [activityId], references: [id], onDelete: Cascade)
+  phonemes Phoneme[]
+}
+
+model Phoneme {
+  id       Int    @id @default(autoincrement())
+  symbol   String
+  position Int
+  wordId   Int
+
+  word Word @relation(fields: [wordId], references: [id], onDelete: Cascade)
+
+  @@unique([wordId, position])
+}
+
+model UsageEvent {
+  id           Int      @id @default(autoincrement())
+  eventType    String
+  activityType String?
+  page         String?
+  durationMs   Int?
+  success      Boolean?
+  message      String?
+  createdAt    DateTime @default(now())
+}
